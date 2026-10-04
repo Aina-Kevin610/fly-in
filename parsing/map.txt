@@ -1,6 +1,6 @@
 # Easy Level 1: Simple linear path
 
-nb_drones: 2 #number of drone
+nb_drones:              2 #number of drone
 
 
 #HUB
