@@ -60,8 +60,12 @@ class Paser:
                 hubs.append(pattern.group())
         self.parsed["hubs"] = hubs
         for data in self.no_comment[1:]:
-            meta_pattern = re.match(r"\s*connection\s*:\s*\w+-\s*\w+\s*\[.*\]", data, re.IGNORECASE)
-            pattern = re.match(r"\s*connection\s*:\s*\w+-\s*\w+", data, re.IGNORECASE)
+            meta_pattern = re.fullmatch(r"\s*connection\s*:"
+                                    r"\s*\w+-\s*\w+\s*"
+                                    r"\[(?:\s*\w+=\w+\s*){1,3}\]",
+                                    data, re.IGNORECASE
+            )
+            pattern = re.fullmatch(r"\s*connection\s*:\s*\w+-\s*\w+", data, re.IGNORECASE)
             if meta_pattern:
                 connections.append(meta_pattern.group())
             elif pattern:
