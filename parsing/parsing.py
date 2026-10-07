@@ -31,8 +31,6 @@ class Paser:
         self.lines = self.read_file()
         self.no_comment = self.remove_comment()
         self.check = False
-        self.check_pattern()
-        self.to_dict()
 
     def read_file(self) -> list[str]:
         """this function that read the filename
@@ -84,36 +82,33 @@ class Paser:
             raise ParseError("UNKNOWN LINE TYPE")
 
         for data in body[:nb_hubs]:
-            meta_pattern = re.fullmatch(
-                r"\s*(hub|start_hub|end_hub)\s*:"
-                r"\s*[^-]+\s*[+-]?\d+\s+[+-]?\d+"
-                r"\s*\[(?:\s*\w+=\w+\s*){1,3}\]",
-                data, re.IGNORECASE
-            )
             pattern = re.fullmatch(r"\s*(hub|start_hub|end_hub)\s*:"
-                                r"\s*[^-]+\s*[+-]?\d+\s+[+-]?\d+",
+                                r"\s*[^\s-]+\s+[+-]?\d+\s+[+-]?\d+"
+                                r"(?:\s*\[(?:\s*\w+=\w+\s*){1,3}\])?"
+                                r"\s*",
                                 data, re.IGNORECASE
                                 )
-            if not (meta_pattern or pattern):
+            if not pattern:
                 raise ParseError("INVALID HUBS FORMAT")
 
         for data in body[nb_hubs:]:
-            meta_pattern = re.fullmatch(r"\s*connection\s*:"
-                                        r"\s*\w+-\s*\w+\s*"
-                                        r"\[(?:\s*\w+=\w+\s*){1,3}\]",
-                                        data, re.IGNORECASE
-                                        )
             pattern = re.fullmatch(r"\s*connection\s*:"
-                                r"\s*\w+-\s*\w+",
+                                r"\s*\w+-\s*\w+"
+                                r"(?:\s*\[(?:\s*\w+=\w+\s*){1,3}\])?",
                                 data, re.IGNORECASE
                                 )
-            if not (meta_pattern or pattern):
+            if not pattern:
                 raise ParseError("INVALID CONNECTIONS FORMAT")
+        print("Parse are ok")
         self.check = True
 
 
     def to_dict(self) -> None:
-        # METADATA NOT CHECKED YET...
+        """transform a list containing the map line by line to a dict
+        nothing verified yet. And update self.parsed
+        """
+        if self.check_pattern == False:
+            return
         self.parsed["nb_drones"] = self.no_comment[0].split(":")[1]
         hubs: list[dict[str, str]] = []
         body = self.no_comment[1:]
@@ -164,6 +159,8 @@ class Paser:
 if __name__ == "__main__":
     try:
         parse = Paser("map.txt")
-        print(parse.parsed["connections"])
+        parse.check_pattern()
+        
+
     except ParseError as e:
         print(f"Error - ", e)

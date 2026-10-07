@@ -7,7 +7,7 @@ nb_drones: 2 #number of drone
 start_hub: start 0 0 [color=red zone=waypoint1 zone=waypoint1    ]
 hub: waypoint1 -1 0 [color=blue zone=waypoint1 zone=waypoint1]
 hub: waypoint2 2 0 [color=blue]
-end_hub: goal 3 0 [color=red zone=waypoint1]
+end_hub: goal 3 0
 
 
 #CONNECTION
