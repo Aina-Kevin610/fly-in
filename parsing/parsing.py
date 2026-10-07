@@ -113,29 +113,57 @@ class Paser:
 
 
     def to_dict(self) -> None:
+        # METADATA NOT CHECKED YET...
         self.parsed["nb_drones"] = self.no_comment[0].split(":")[1]
-        hubs: list[dict[str, str | int | None]] = []
+        hubs: list[dict[str, str]] = []
         body = self.no_comment[1:]
         nb_hubs = sum(1 for line in body if re.match(
             r"\s*(hub|start_hub|end_hub)\s*:", line, re.IGNORECASE))
-        # nb_conns = sum(1 for line in body if re.match(
-        #     r"\s*connection\s*:", line, re.IGNORECASE))
+        nb_conns = sum(1 for line in body if re.match(
+            r"\s*connection\s*:", line, re.IGNORECASE))
         for hub in body[:nb_hubs]:
-            hubs.append(
-                {
-                    "name": hub.split()[1],
-                    "x": hub.split()[2],
-                    "y": hub.split()[3],
-                    "metadata": hub.split(" ", 4)[4]
-                }
-            )
+            if '[' in hub:
+                hubs.append(
+                    {
+                        "name": hub.split()[1],
+                        "x": hub.split()[2],
+                        "y": hub.split()[3],
+                        "metadata": hub.split(" ", 4)[4]
+                    }
+                )
+            else:
+                hubs.append(
+                    {
+                        "name": hub.split()[1],
+                        "x": hub.split()[2],
+                        "y": hub.split()[3]
+                    }
+                )
         self.parsed["hubs"] = hubs
+        conns: list[dict[str, str]] = []
+        for conn in body[nb_conns + 1:]:
+            if '[' in conn:
+                conns.append(
+                    {
+                        "start": conn.split()[1].split("-")[0],
+                        "end": conn.split()[1].split("-")[-1],
+                        "metadata": conn.split()[2]
+                    }
+                )
+            else:
+                conns.append(
+                    {
+                        "start": conn.split()[1].split("-")[0],
+                        "end": conn.split()[1].split("-")[1]
+                    }
+                )
+        self.parsed["connections"] = conns
 
 
 
 if __name__ == "__main__":
     try:
         parse = Paser("map.txt")
-        print(parse.parsed)
+        print(parse.parsed["connections"])
     except ParseError as e:
         print(f"Error - ", e)
