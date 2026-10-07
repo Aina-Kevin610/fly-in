@@ -55,6 +55,15 @@ class Paser:
         return [x for x in result if x != ""]
 
     def check_pattern(self) -> None:
+        """function that check only if the pattern
+        of the file is set as excpected
+
+        Raises:
+            ParseError: raise exception when number of drone's pattern is wrong
+            ParseError: raise exception when number of hubs and connection not equal to len(self.no_comment)
+            ParseError: raise exception when any hub's pattern is wrong
+            ParseError: raise exception when any connection's pattern is wrong
+        """
         nb_drones = re.fullmatch(r"\s*nb_drones\s*:\s*\d+",
                                 self.no_comment[0],
                                 re.IGNORECASE
@@ -100,7 +109,8 @@ class Paser:
 
 
 if __name__ == "__main__":
-    parse = Paser("map.txt")
-    print(parse.check_pattern())
-
-    # print(parse.nb_drones)
+    try:
+        parse = Paser("map.txt")
+        print(parse.check_pattern())
+    except ParseError as e:
+        print(f"Error - ", e)
