@@ -117,43 +117,26 @@ class Paser:
         nb_conns = sum(1 for line in body if re.match(
             r"\s*connection\s*:", line, re.IGNORECASE))
         for hub in body[:nb_hubs]:
-            if '[' in hub:
-                hubs.append(
-                    {
-                        "name": hub.split()[1],
-                        "x": hub.split()[2],
-                        "y": hub.split()[3],
-                        "metadata": hub.split(" ", 4)[4]
-                    }
-                )
-            else:
-                hubs.append(
-                    {
-                        "name": hub.split()[1],
-                        "x": hub.split()[2],
-                        "y": hub.split()[3]
-                    }
-                )
+            default_metadata = "[zone=normal max_drones=1 color=none]"
+            parts = hub.split(" ", 4)
+            hubs.append({
+                "name": parts[1],
+                "x": parts[2],
+                "y": parts[3],
+                "metadata": parts[4] if len(parts) > 4 else default_metadata,
+            })
         self.parsed["hubs"] = hubs
         conns: list[dict[str, str]] = []
         for conn in body[nb_conns + 1:]:
-            if '[' in conn:
-                conns.append(
-                    {
-                        "start": conn.split()[1].split("-")[0],
-                        "end": conn.split()[1].split("-")[-1],
-                        "metadata": conn.split()[2]
-                    }
-                )
-            else:
-                conns.append(
-                    {
-                        "start": conn.split()[1].split("-")[0],
-                        "end": conn.split()[1].split("-")[1]
-                    }
-                )
+            default_metadata = "[max_link_capacity=1]"
+            parts = conn.split(" ", 2)
+            start, end = parts[1].split("-", 1)
+            conns.append({
+                "start": start,
+                "end": end,
+                "metadata": parts[2] if len(parts) > 2 else default_metadata,
+            })
         self.parsed["connections"] = conns
-
 
 
 if __name__ == "__main__":
