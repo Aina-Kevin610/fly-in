@@ -1,5 +1,6 @@
 import re
 
+
 class ParseError(Exception):
     """A specific error, raised when a parsing error occure
 
@@ -26,10 +27,12 @@ class Paser:
             filename (str): name of the file containing the map
         """
         self.filename = filename
-        self.parsed: dict[str, int | str | list[str | None]] = {}
+        self.parsed: dict[str, int | str | list[dict[str, str]]] = {}
         self.lines = self.read_file()
         self.no_comment = self.remove_comment()
-        # self.nb_drones = self.check_pattern()
+        self.check = False
+        self.check_pattern()
+        self.to_dict()
 
     def read_file(self) -> list[str]:
         """this function that read the filename
@@ -106,11 +109,33 @@ class Paser:
                                 )
             if not (meta_pattern or pattern):
                 raise ParseError("INVALID CONNECTIONS FORMAT")
+        self.check = True
+
+
+    def to_dict(self) -> None:
+        self.parsed["nb_drones"] = self.no_comment[0].split(":")[1]
+        hubs: list[dict[str, str | int | None]] = []
+        body = self.no_comment[1:]
+        nb_hubs = sum(1 for line in body if re.match(
+            r"\s*(hub|start_hub|end_hub)\s*:", line, re.IGNORECASE))
+        # nb_conns = sum(1 for line in body if re.match(
+        #     r"\s*connection\s*:", line, re.IGNORECASE))
+        for hub in body[:nb_hubs]:
+            hubs.append(
+                {
+                    "name": hub.split()[1],
+                    "x": hub.split()[2],
+                    "y": hub.split()[3],
+                    "metadata": hub.split(" ", 4)[4]
+                }
+            )
+        self.parsed["hubs"] = hubs
+
 
 
 if __name__ == "__main__":
     try:
         parse = Paser("map.txt")
-        print(parse.check_pattern())
+        print(parse.parsed)
     except ParseError as e:
         print(f"Error - ", e)
