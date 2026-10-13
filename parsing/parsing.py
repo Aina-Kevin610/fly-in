@@ -1,3 +1,4 @@
+import pprint
 import re
 
 
@@ -99,7 +100,6 @@ class Paser:
                                 )
             if not pattern:
                 raise ParseError("INVALID CONNECTIONS FORMAT")
-        print("Parse are ok")
         self.check = True
 
 
@@ -127,7 +127,7 @@ class Paser:
             })
         self.parsed["hubs"] = hubs
         conns: list[dict[str, str]] = []
-        for conn in body[nb_conns + 1:]:
+        for conn in body[nb_hubs + 1:]:
             default_metadata = "[max_link_capacity=1]"
             parts = conn.split(" ", 2)
             start, end = parts[1].split("-", 1)
@@ -139,11 +139,19 @@ class Paser:
         self.parsed["connections"] = conns
 
 
+    def validate(self):
+        self.to_dict()
+        if len([x for x in self.parsed["hubs"] if "start" in x["name"] or "goal" in x["name"]]) != 2:
+            raise ParseError("Start hub or End_hub not valid")
+        position = [(d["x"], d["y"]) for d in self.parsed["hubs"]]
+        if len(position) != len(set(position)):
+            raise ParseError("Coordinates are not valid")
+        pprint.pprint(self.parsed, indent=2)
+
+
 if __name__ == "__main__":
     try:
         parse = Paser("map.txt")
-        parse.check_pattern()
-        
-
+        parse.validate()
     except ParseError as e:
         print(f"Error - ", e)
