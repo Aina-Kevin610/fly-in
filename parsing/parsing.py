@@ -146,6 +146,11 @@ class Paser:
         position = [(d["x"], d["y"]) for d in self.parsed["hubs"]]
         if len(position) != len(set(position)):
             raise ParseError("Coordinates are not valid")
+        hub_name = [name["name"] for name in self.parsed["hubs"]]
+        missing_name = [x for x in self.parsed["connections"] if x["start"] not in hub_name or x["end"] not in hub_name]
+        if len(missing_name) > 0:
+            raise ParseError("Missing name occure")
+
         pprint.pprint(self.parsed, indent=2)
 
 
