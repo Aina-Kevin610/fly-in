@@ -8,6 +8,7 @@ class ParseError(Exception):
     Args:
         Exception (Exception): A buil-in class that ParseError inherit
     """
+
     def __init__(self, messages: str) -> None:
         """constructor function
 
@@ -32,6 +33,7 @@ class Paser:
         self.lines = self.read_file()
         self.no_comment = self.remove_comment()
         self.check = False
+        self.hub_name: list[str] = []
 
     def read_file(self) -> list[str]:
         """this function that read the filename
@@ -84,7 +86,7 @@ class Paser:
 
         for data in body[:nb_hubs]:
             pattern = re.fullmatch(r"\s*(hub|start_hub|end_hub)\s*:"
-                                r"\s*[^\s-]+\s+[+-]?\d+\s+[+-]?\d+"
+                                r"\s*[^\s-$]+\s+[+-]?\d+\s+[+-]?\d+"
                                 r"(?:\s*\[(?:\s*\w+=\w+\s*){1,3}\])?"
                                 r"\s*",
                                 data, re.IGNORECASE
@@ -125,6 +127,7 @@ class Paser:
                 "y": parts[3],
                 "metadata": parts[4] if len(parts) > 4 else default_metadata,
             })
+            self.hub_name.append(parts[1])
         self.parsed["hubs"] = hubs
         conns: list[dict[str, str]] = []
         for conn in body[nb_hubs + 1:]:
@@ -141,15 +144,14 @@ class Paser:
 
     def validate(self):
         self.to_dict()
-        if len([x for x in self.parsed["hubs"] if "start" in x["name"] or "goal" in x["name"]]) != 2:
+        if "start" not in self.hub_name or "goal" not in self.hub_name:
             raise ParseError("Start hub or End_hub not valid")
         position = [(d["x"], d["y"]) for d in self.parsed["hubs"]]
         if len(position) != len(set(position)):
             raise ParseError("Coordinates are not valid")
-        hub_name = [name["name"] for name in self.parsed["hubs"]]
-        missing_name = [x for x in self.parsed["connections"] if x["start"] not in hub_name or x["end"] not in hub_name]
+        missing_name = [x for x in self.parsed["connections"] if x["start"] not in self.hub_name or x["end"] not in self.hub_name]
         if len(missing_name) > 0:
-            raise ParseError("Missing name occure")
+            raise ParseError("Unknown name found on connection")
 
         pprint.pprint(self.parsed, indent=2)
 
@@ -158,5 +160,6 @@ if __name__ == "__main__":
     try:
         parse = Paser("map.txt")
         parse.validate()
+        print(parse.hub_name)
     except ParseError as e:
         print(f"Error - ", e)
