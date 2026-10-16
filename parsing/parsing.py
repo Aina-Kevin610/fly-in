@@ -119,31 +119,33 @@ class Paser:
         nb_conns = sum(1 for line in body if re.match(
             r"\s*connection\s*:", line, re.IGNORECASE))
         for hub in body[:nb_hubs]:
-            default_metadata = "[zone=normal max_drones=1 color=none]"
+            default_metadata = ["zone=normal", "max_drones=1", "color=none"]
             parts = hub.split(" ", 4)
             hubs.append({
                 "name": parts[1],
                 "x": parts[2],
                 "y": parts[3],
-                "metadata": parts[4] if len(parts) > 4 else default_metadata,
+                "metadata": parts[4].replace("[", "").replace("]", "").split() if len(parts) > 4 else default_metadata,
             })
             self.hub_name.append(parts[1])
         self.parsed["hubs"] = hubs
         conns: list[dict[str, str]] = []
         for conn in body[nb_hubs + 1:]:
-            default_metadata = "[max_link_capacity=1]"
+            default_metadata = "max_link_capacity=1"
             parts = conn.split(" ", 2)
             start, end = parts[1].split("-", 1)
             conns.append({
                 "start": start,
                 "end": end,
-                "metadata": parts[2] if len(parts) > 2 else default_metadata,
+                "metadata": parts[2].replace("[", "").replace("]", "") if len(parts) > 2 else default_metadata,
             })
         self.parsed["connections"] = conns
 
 
     def validate(self):
         self.to_dict()
+        zone_type = ["normal", "blocked", "restricted", "priority"]
+        color = ["red", "green"]
         if "start" not in self.hub_name or "goal" not in self.hub_name:
             raise ParseError("Start hub or End_hub not valid")
         position = [(d["x"], d["y"]) for d in self.parsed["hubs"]]
@@ -152,6 +154,19 @@ class Paser:
         missing_name = [x for x in self.parsed["connections"] if x["start"] not in self.hub_name or x["end"] not in self.hub_name]
         if len(missing_name) > 0:
             raise ParseError("Unknown name found on connection")
+
+        body = self.no_comment[1:]
+        nb_hubs = sum(1 for line in body if re.match(
+            r"\s*(hub|start_hub|end_hub)\s*:", line, re.IGNORECASE))
+        nb_conns = sum(1 for line in body if re.match(
+            r"\s*connection\s*:", line, re.IGNORECASE))
+        for hub in body[:nb_hubs]:
+            for data in hub["metadata"]:
+                k, v = data.split("=")
+                if (k.lower() == "color" and v.lower() not in color) or (k.lower() == "zone" and v.lower() not in zone_type) or (k.lower() == "max_drones" and int(v)):
+                    raise ParseError("Metadata error")
+                else:
+                    raise ParseError("Unknown Metadata")
 
         pprint.pprint(self.parsed, indent=2)
 
