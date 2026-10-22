@@ -1,5 +1,4 @@
 import re
-import sys
 from typing import Any
 
 
@@ -15,18 +14,31 @@ class Parser:
     CONNECTION_METADATA_KEYS = {"max_link_capacity"}
 
     def __init__(self, filename: str) -> None:
+        """constructor
+
+        Args:
+            filename (str): name of the map file to parse
+        """
         self.filename = filename
         self.lines = self._read_file()
         self.cleaned_lines = self._remove_comments()
         self.parsed: dict[str, Any] = {}
 
     def _read_file(self) -> list[str]:
-        """Read the map file line by line."""
+        """Read the map file line by line.
+
+        Returns:
+            list[str]: The lines of the file.
+        """
         with open(self.filename, "r") as file:
             return file.read().splitlines()
 
     def _remove_comments(self) -> list[str]:
-        """Remove comments starting with '#', keeping the remaining lines."""
+        """Remove comments starting with '#', keeping the remaining lines.
+        
+        Returns:
+            list[str]: The lines without comments.
+        """
         cleaned: list[str] = []
         for line in self.lines:
             without_comment = re.sub(r"\s*#.*$", "", line)
@@ -40,7 +52,16 @@ class Parser:
         allowed_keys: set[str],
         context: str,
     ) -> dict[str, str | int]:
-        """Parse a metadata block like [zone=normal color=red max_drones=2]."""
+        """Parse a metadata block like [zone=normal color=red max_drones=2].
+        
+        Args:
+            metadata_block (str): The metadata block to parse.
+            allowed_keys (set[str]): The set of allowed metadata keys.
+            context (str): The context for error messages.
+
+        Returns:
+            dict[str, str | int]: The parsed metadata as a dictionary.
+        """
         if not metadata_block.strip():
             return {}
 
@@ -81,7 +102,15 @@ class Parser:
         return metadata
 
     def _parse_hub_line(self, line: str, line_number: int) -> dict[str, Any]:
-        """Parse a zone definition line."""
+        """Parse a zone definition line.
+        
+        Args:
+            line (str): The line to parse.
+            line_number (int): The line number in the file.
+            
+        Returns:
+            dict[str, Any]: The parsed hub information.
+        """
         pattern = re.compile(
             r"^\s*(hub|start_hub|end_hub)\s*:\s*([^\s-]+)\s+(-?\d+)\s+(-?\d+)"
             r"(?:\s*\[(.*)\])?\s*$",
@@ -120,7 +149,15 @@ class Parser:
         }
 
     def _parse_connection_line(self, line: str, line_number: int) -> dict[str, Any]:
-        """Parse a connection definition line."""
+        """Parse a connection definition line.
+        
+        Args:
+            line (str): The line to parse.
+            line_number (int): The line number in the file.
+
+        Returns:
+            dict[str, Any]: The parsed connection information.
+        """
         pattern = re.compile(
             r"^\s*connection\s*:\s*([^\s-]+)-([^\s-]+)"
             r"(?:\s*\[(.*)\])?\s*$",
@@ -144,7 +181,11 @@ class Parser:
         }
 
     def parse(self) -> dict[str, Any]:
-        """Parse and validate the entire map file."""
+        """Parse and validate the entire map file.
+        
+        Returns:
+            dict[str, Any]: The parsed map information.
+        """
         if not self.cleaned_lines:
             raise ParseError("Empty map file")
 
@@ -216,17 +257,3 @@ class Parser:
             "end": next(hub["name"] for hub in hubs if hub["type"] == "end_hub"),
         }
         return self.parsed
-
-
-Paser = Parser
-
-
-if __name__ == "__main__":
-    file_to_parse = sys.argv[1] if len(sys.argv) > 1 else "parsing/map.txt"
-    try:
-        parser = Parser(file_to_parse)
-        parsed_map = parser.parse()
-        print(parsed_map)
-    except ParseError as e:
-        print(f"Error: {e}")
-        raise SystemExit(1)
