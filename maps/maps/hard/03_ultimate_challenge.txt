@@ -4,47 +4,47 @@ nb_drones: 15
 start_hub: start 0 0 [color=green]
 
 # Layer 1: Initial distribution nightmare
-hub: dist_gate1 1 -1 [color=orange]
-hub: dist_gate2 1 1 [color=orange]
-hub: dist_gate3 1 0 [color=orange]
+hub: dist_gate1 1 -1 [color=red]
+hub: dist_gate2 1 1 [color=red]
+hub: dist_gate3 1 0 [color=red]
 
 # Layer 2: Dead end maze with loops
 hub: maze_trap1 1 2 [color=red]
 hub: maze_trap2 2 2 [color=red max_drones=3]
-hub: maze_loop1 2 1 [color=purple max_drones=3]
-hub: maze_loop2 3 1 [color=purple max_drones=3]
-hub: maze_loop3 4 1 [color=purple max_drones=3]
-hub: maze_loop4 3 2 [color=purple max_drones=3]
+hub: maze_loop1 2 1 [color=blue max_drones=3]
+hub: maze_loop2 3 1 [color=blue max_drones=3]
+hub: maze_loop3 4 1 [color=blue max_drones=3]
+hub: maze_loop4 3 2 [color=blue max_drones=3]
 hub: maze_correct 2 0 [color=blue max_drones=3]
 
 # Layer 3: Capacity nightmare section
-hub: bottleneck1 3 0 [color=yellow max_drones=2]
-hub: bottleneck2 4 0 [color=yellow max_drones=1]
-hub: overflow1 3 -1 [zone=restricted color=orange max_drones=3]
-hub: overflow2 4 -1 [zone=restricted color=orange max_drones=3]
+hub: bottleneck1 3 0 [color=white max_drones=2]
+hub: bottleneck2 4 0 [color=white max_drones=1]
+hub: overflow1 3 -1 [zone=restricted color=red max_drones=3]
+hub: overflow2 4 -1 [zone=restricted color=red max_drones=3]
 
 # Layer 4: Priority puzzle with traps
-hub: priority_hub 5 0 [zone=priority color=cyan max_drones=4]
-hub: priority_trap1 5 1 [zone=priority color=cyan]
-hub: priority_trap2 6 1 [zone=priority color=cyan]
+hub: priority_hub 5 0 [zone=priority color=blue max_drones=4]
+hub: priority_trap1 5 1 [zone=priority color=blue]
+hub: priority_trap2 6 1 [zone=priority color=blue]
 hub: priority_dead_end 6 2 [color=red]
-hub: priority_correct 6 0 [zone=priority color=cyan max_drones=3]
+hub: priority_correct 6 0 [zone=priority color=blue max_drones=3]
 
 # Layer 5: Multi-path convergence hell
-hub: conv_restricted1 7 0 [zone=restricted color=brown max_drones=2]
-hub: conv_restricted2 8 0 [zone=restricted color=brown max_drones=2]
+hub: conv_restricted1 7 0 [zone=restricted color=black max_drones=2]
+hub: conv_restricted2 8 0 [zone=restricted color=black max_drones=2]
 hub: conv_normal1 7 -1 [color=blue max_drones=3]
 hub: conv_normal2 8 -1 [color=blue max_drones=3]
-hub: conv_priority1 7 1 [zone=priority color=lime max_drones=2]
-hub: conv_priority2 8 1 [zone=priority color=lime max_drones=2]
+hub: conv_priority1 7 1 [zone=priority color=green max_drones=2]
+hub: conv_priority2 8 1 [zone=priority color=green max_drones=2]
 
 # Layer 6: Final gauntlet
-hub: final_merge 9 0 [color=magenta max_drones=8]
-hub: final_gate1 10 0 [color=orange max_drones=3]
-hub: final_gate2 11 0 [color=orange max_drones=2]
-hub: final_gate3 12 0 [color=orange max_drones=1]
+hub: final_merge 9 0 [color=blue max_drones=8]
+hub: final_gate1 10 0 [color=red max_drones=3]
+hub: final_gate2 11 0 [color=red max_drones=2]
+hub: final_gate3 12 0 [color=red max_drones=1]
 
-end_hub: goal 13 0 [color=gold]
+end_hub: goal 13 0 [color=white]
 
 # Layer 1 connections
 connection: start-dist_gate1

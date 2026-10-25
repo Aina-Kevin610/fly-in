@@ -10,6 +10,7 @@ class Parser:
     """Parse and validate a Fly-in map file."""
 
     VALID_ZONE_TYPES = {"normal", "blocked", "restricted", "priority"}
+    VALID_COLORS = {"red", "blue", "green", "white", "black"}
     ZONE_METADATA_KEYS = {"zone", "color", "max_drones"}
     CONNECTION_METADATA_KEYS = {"max_link_capacity"}
 
@@ -72,9 +73,11 @@ class Parser:
             key, value = item.split("=", 1)
             key_name = key.lower()
             if key_name not in allowed_keys:
-                raise ParseError(f"{context} metadata key is invalid: '{key_name}'")
+                raise ParseError(
+                    f"{context} metadata key is invalid: '{key_name}'")
             if key_name in metadata:
-                raise ParseError(f"{context} metadata key is duplicated: '{key_name}'")
+                raise ParseError(
+                    f"{context} metadata key is duplicated: '{key_name}'")
             if key_name == "zone":
                 zone_type = value.lower()
                 if zone_type not in self.VALID_ZONE_TYPES:
@@ -85,20 +88,24 @@ class Parser:
             elif key_name in {"max_drones", "max_link_capacity"}:
                 if not re.fullmatch(r"\d+", value):
                     raise ParseError(
-                        f"{context} capacity must be a positive integer: '{value}'"
+                        f"{context} capacity "
+                        f"must be a positive integer: '{value}'"
                     )
                 capacity = int(value)
                 if capacity <= 0:
                     raise ParseError(
-                        f"{context} capacity must be strictly positive: '{value}'"
+                        f"{context} capacity must "
+                        f"be strictly positive: '{value}'"
                     )
                 metadata[key_name] = capacity
             else:
-                if not re.fullmatch(r"[^\s-]+", value):
+                color = value.lower()
+                if color not in self.VALID_COLORS:
                     raise ParseError(
-                        f"{context} color value is invalid: '{value}'"
+                        f"{context} color must be one of "
+                        f"{', '.join(sorted(self.VALID_COLORS))}: '{value}'"
                     )
-                metadata[key_name] = value
+                metadata[key_name] = color
         return metadata
 
     def _parse_hub_line(self, line: str, line_number: int) -> dict[str, Any]:
@@ -133,7 +140,7 @@ class Parser:
 
         clean_metadata: dict[str, str | int] = {
             "zone": metadata.get("zone", "normal"),
-            "color": metadata.get("color", "none"),
+            "color": metadata.get("color", "white"),
             "max_drones": metadata.get("max_drones", 1),
         }
 
@@ -148,7 +155,9 @@ class Parser:
             "metadata": clean_metadata,
         }
 
-    def _parse_connection_line(self, line: str, line_number: int) -> dict[str, Any]:
+    def _parse_connection_line(
+            self, line: str, line_number: int
+            ) -> dict[str, Any]:
         """Parse a connection definition line.
         
         Args:
@@ -165,7 +174,8 @@ class Parser:
         )
         match = pattern.fullmatch(line)
         if match is None:
-            raise ParseError(f"Line {line_number}: invalid connection declaration")
+            raise ParseError(
+                f"Line {line_number}: invalid connection declaration")
 
         left_name, right_name, metadata_block = match.groups()
         metadata = self.parse_metadata(
@@ -190,39 +200,46 @@ class Parser:
             raise ParseError("Empty map file")
 
         first_line = self.cleaned_lines[0]
-        first_match = re.fullmatch(r"\s*nb_drones\s*:\s*(\d+)\s*", first_line, re.IGNORECASE)
+        first_match = re.fullmatch(
+            r"\s*nb_drones\s*:\s*(\d+)\s*", first_line, re.IGNORECASE)
         if first_match is None:
             raise ParseError("Line 1: invalid nb_drones declaration")
         nb_drones = int(first_match.group(1))
         if nb_drones <= 0:
-            raise ParseError("Line 1: the number of drones must be a positive integer")
+            raise ParseError(
+                "Line 1: the number of drones must be a positive integer")
 
         hubs: list[dict[str, Any]] = []
         connections: list[dict[str, Any]] = []
         seen_hub_names: set[str] = set()
         seen_connections: set[tuple[str, str]] = set()
         for line_number, line in enumerate(self.cleaned_lines[1:], start=2):
-            if re.match(r"\s*(hub|start_hub|end_hub)\s*:\s*", line, re.IGNORECASE):
+            if re.match(
+                    r"\s*(hub|start_hub|end_hub)\s*:\s*", line, re.IGNORECASE):
                 parsed_hub = self._parse_hub_line(line, line_number)
                 hub_name = parsed_hub["name"]
                 if hub_name in seen_hub_names:
-                    raise ParseError(f"Line {line_number}: duplicate hub name '{hub_name}'")
+                    raise ParseError(f"Line {line_number}: "
+                                     f"duplicate hub name '{hub_name}'")
                 seen_hub_names.add(hub_name)
                 hubs.append(parsed_hub)
                 continue
 
             if re.match(r"\s*connection\s*:", line, re.IGNORECASE):
-                parsed_connection = self._parse_connection_line(line, line_number)
+                parsed_connection = self._parse_connection_line(
+                    line, line_number)
                 start_name = parsed_connection["start"]
                 end_name = parsed_connection["end"]
                 if start_name == end_name:
                     raise ParseError(
-                        f"Line {line_number}: a connection cannot link a hub to itself"
+                        f"Line {line_number}:"
+                        f" a connection cannot link a hub to itself"
                     )
                 normalized = tuple(sorted((start_name, end_name)))
                 if normalized in seen_connections:
                     raise ParseError(
-                        f"Line {line_number}: duplicate connection '{start_name}-{end_name}'"
+                        f"Line {line_number}: duplicate connection "
+                        f"'{start_name}-{end_name}'"
                     )
                 seen_connections.add(normalized)
                 connections.append(parsed_connection)
@@ -242,18 +259,24 @@ class Parser:
         for connection in connections:
             if connection["start"] not in hub_by_name:
                 raise ParseError(
-                    f"Connection '{connection['start']}-{connection['end']}' uses an unknown hub name"
+                    f"Connection '{connection['start']}-{connection['end']}"
+                    f"' uses an unknown hub name"
                 )
             if connection["end"] not in hub_by_name:
                 raise ParseError(
-                    f"Connection '{connection['start']}-{connection['end']}' uses an unknown hub name"
+                    f"Connection '{connection['start']}-{connection['end']}"
+                    f"' uses an unknown hub name"
                 )
 
         self.parsed = {
             "nb_drones": nb_drones,
             "hubs": hubs,
             "connections": connections,
-            "start": next(hub["name"] for hub in hubs if hub["type"] == "start_hub"),
-            "end": next(hub["name"] for hub in hubs if hub["type"] == "end_hub"),
+            "start": next(hub["name"]
+                          for hub in hubs
+                          if hub["type"] == "start_hub"),
+            "end": next(hub["name"]
+                        for hub in hubs
+                        if hub["type"] == "end_hub"),
         }
         return self.parsed
