@@ -1,5 +1,6 @@
 from typing import Any
 
+
 class Drone:
     """class for one drone"""
 
@@ -19,8 +20,10 @@ class Zone:
 
         Args:j
             name (str): name of the zone
-            positions (tuple[int, int]): top-left and bottom-right coordinates of the zone
-            metadata (dict[str, str  |  int]): additional information about the zone
+            positions (tuple[int, int]): top-left and bottom-right
+                coordinates of the zone
+            metadata (dict[str, str  |  int]): additional
+                information about the zone
         """
         self.name = name
         self.x1 = positions[0]
@@ -36,7 +39,8 @@ class Connection:
         """Initialize a Connection object
 
         Args:
-            connection_data (dict[str, Any]): dictionary containing connection information
+            connection_data (dict[str, Any]): dictionary
+            containing connection information
         """
         self.start = connection_data["start"]
         self.end = connection_data["end"]
@@ -51,16 +55,21 @@ class Graph:
         Args:
             parsed_map: a parsed map
         """
-        self.drone: list[Drone] = [Drone() for _ in range(int(parsed_map["nb_drones"]))]
-        self.zone: list[Zone] = [Zone(zone["name"], (zone["x"], zone["y"]), zone["metadata"])
-                     for zone in parsed_map["hubs"]]
-        self.connections: list[Connection] = [Connection(conn) for conn in parsed_map["connections"]]
+        self.drone: list[Drone] = [Drone() for _ in
+                                   range(int(parsed_map["nb_drones"]))]
+        self.zone: list[Zone] = [Zone(
+            zone["name"], (zone["x"], zone["y"]), zone["metadata"])
+                                 for zone in parsed_map["hubs"]]
+        self.connections: list[Connection] = [Connection(conn)
+                                              for conn in
+                                              parsed_map["connections"]]
 
     def representation(self) -> dict[str, list[str]]:
         """Creating a graph representation based on connection
 
         Returns:
-            dict[str, list[str]]: dict of adjacency list representation of the graph
+            dict[str, list[str]]: dict of adjacency list
+                                 representation of the graph
         """
         adjacency_list: dict[str, list[str]] = {}
 

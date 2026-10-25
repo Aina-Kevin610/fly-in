@@ -36,7 +36,7 @@ class Parser:
 
     def _remove_comments(self) -> list[str]:
         """Remove comments starting with '#', keeping the remaining lines.
-        
+
         Returns:
             list[str]: The lines without comments.
         """
@@ -54,7 +54,7 @@ class Parser:
         context: str,
     ) -> dict[str, str | int]:
         """Parse a metadata block like [zone=normal color=red max_drones=2].
-        
+
         Args:
             metadata_block (str): The metadata block to parse.
             allowed_keys (set[str]): The set of allowed metadata keys.
@@ -110,11 +110,11 @@ class Parser:
 
     def _parse_hub_line(self, line: str, line_number: int) -> dict[str, Any]:
         """Parse a zone definition line.
-        
+
         Args:
             line (str): The line to parse.
             line_number (int): The line number in the file.
-            
+
         Returns:
             dict[str, Any]: The parsed hub information.
         """
@@ -159,7 +159,7 @@ class Parser:
             self, line: str, line_number: int
             ) -> dict[str, Any]:
         """Parse a connection definition line.
-        
+
         Args:
             line (str): The line to parse.
             line_number (int): The line number in the file.
@@ -192,7 +192,7 @@ class Parser:
 
     def parse(self) -> dict[str, Any]:
         """Parse and validate the entire map file.
-        
+
         Returns:
             dict[str, Any]: The parsed map information.
         """
