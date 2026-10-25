@@ -1,4 +1,6 @@
-SRCS = parsing.py fly_in.py
+SRCS	=	parsing.py \
+			fly_in.py \
+			utils.py
 
 install: venv/bin/python3
 	venv/bin/pip install -r requirements.txt
