@@ -6,7 +6,8 @@ class Drone:
 
     def __init__(self) -> None:
         """Initialize a Drone object."""
-        self.position = (0, 0)
+        self.position: tuple[int, int] = (0, 0)
+        self.state: str | None = None
         self.path: list[str] = []
 
 

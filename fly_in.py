@@ -8,8 +8,9 @@ def main() -> None:
     try:
         parser = Parser(file_to_parse)
         parsed_map = parser.parse()
+        print(parsed_map)
         graph = Graph(parsed_map)
-        graph.representation()
+        print(graph.representation())
     except ParseError as e:
         print(f"Error: {e}")
         raise SystemExit(1)
