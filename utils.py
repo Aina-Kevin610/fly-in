@@ -18,7 +18,7 @@ class Drone:
     def __init__(self) -> None:
         """Initialize a Drone object."""
         self.position: tuple[int, int] = (0, 0)
-        self.state: str | None = None
+        self.state: bool = False
         self.path: list[str] = []
 
 
@@ -43,6 +43,7 @@ class Zone:
         self.color = metadata["color"]
         self.type = metadata["zone"]
         self.max_drones = metadata["max_drones"]
+        self.state = True
 
 
 class Connection:
@@ -97,11 +98,11 @@ class Graph:
 
         for hub in self.zone:
             if hub.type == "blocked":
-                del adjacency_list[hub.name]
                 for zone in adjacency_list.values():
                     if hub.name in zone:
                         zone.remove(hub.name)
-        if ("start", "goal") not in adjacency_list.keys():
+                del adjacency_list[hub.name]
+        if "start" not in adjacency_list.keys() or "goal" not in adjacency_list.keys():
             raise GraphError("Inaccessible mandatory zone")
         if not (adjacency_list["start"] and adjacency_list["goal"]):
             raise GraphError("Inaccessible mandatory zone")
