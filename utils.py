@@ -1,6 +1,17 @@
 from typing import Any
 
 
+class GraphError(Exception):
+    """Personal Exception done for all graph error
+
+    Args:
+        Exception (_type_): the built-in Exception class
+    """
+    def __init__(self, *args):
+        """constructor"""
+        super().__init__(*args)
+
+
 class Drone:
     """class for one drone"""
 
@@ -67,6 +78,7 @@ class Graph:
 
     def representation(self) -> dict[str, list[str]]:
         """Creating a graph representation based on connection
+        and removing all blocked zone
 
         Returns:
             dict[str, list[str]]: dict of adjacency list
@@ -83,4 +95,13 @@ class Graph:
             adjacency_list[connection.start].append(connection.end)
             adjacency_list[connection.end].append(connection.start)
 
+        for hub in self.zone:
+            if hub.type.lower() == "blocked":
+                del adjacency_list[hub.name]
+                for zone in adjacency_list.values():
+                    if hub.name in zone:
+                        zone.remove(hub.name)
+
+        if not (adjacency_list["start"] and adjacency_list["goal"]):
+            raise GraphError("Inaccessible mandatory zone")
         return adjacency_list
