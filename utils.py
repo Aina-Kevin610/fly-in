@@ -7,7 +7,7 @@ class GraphError(Exception):
     Args:
         Exception (_type_): the built-in Exception class
     """
-    def __init__(self, *args):
+    def __init__(self, *args: str):
         """constructor"""
         super().__init__(*args)
 
@@ -96,12 +96,13 @@ class Graph:
             adjacency_list[connection.end].append(connection.start)
 
         for hub in self.zone:
-            if hub.type.lower() == "blocked":
+            if hub.type == "blocked":
                 del adjacency_list[hub.name]
                 for zone in adjacency_list.values():
                     if hub.name in zone:
                         zone.remove(hub.name)
-
+        if ("start", "goal") not in adjacency_list.keys():
+            raise GraphError("Inaccessible mandatory zone")
         if not (adjacency_list["start"] and adjacency_list["goal"]):
             raise GraphError("Inaccessible mandatory zone")
         return adjacency_list

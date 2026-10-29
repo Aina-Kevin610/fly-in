@@ -1,9 +1,10 @@
 import sys
 from parsing import Parser, ParseError
-from utils import Graph
+from utils import Graph, GraphError
 
 
 def main() -> None:
+    print("=== FLY-IN ===")
     file_to_parse = sys.argv[1] if len(sys.argv) > 1 else "map.txt"
     try:
         parser = Parser(file_to_parse)
@@ -11,7 +12,7 @@ def main() -> None:
         print(parsed_map)
         graph = Graph(parsed_map)
         print(graph.representation())
-    except ParseError as e:
+    except (ParseError, GraphError) as e:
         print(f"Error: {e}")
         raise SystemExit(1)
 
