@@ -1,6 +1,9 @@
 from math import inf
 
 
+class 
+
+
 class Pathfinding:
     """Class needed to find the shortest path"""
 
