@@ -1,6 +1,6 @@
 import sys
-from parsing import Parser, ParseError
-from utils import Graph, GraphError
+from parsing import Parser
+from utils import Graph
 from shortest_path import Pathfinding
 
 
@@ -10,16 +10,16 @@ def main() -> None:
     try:
         parser = Parser(file_to_parse)
         parsed_map = parser.parse()
-        # print(parsed_map)
-        graph = Graph(parsed_map).representation()
-        # print(graph)
+        graph = Graph(parsed_map)
         p = Pathfinding(graph)
         p.resolve("start")
+        print([x.name for x in p.get_shortest_path("goal")])
         
-    except (ParseError, GraphError) as e:
+    except Exception as e:
         print(f"Error: {e}")
         raise SystemExit(1)
 
 
 if __name__ == "__main__":
     main()
+    

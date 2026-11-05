@@ -1,21 +1,36 @@
 from math import inf
-
-from utils import Zone
+from utils import Zone, Graph
 
 
 class Pathfinding:
     """Class needed to find the shortest path"""
 
-    def __init__(self, graph: dict[Zone, list[Zone]]) -> None:
-        self.graph = graph
+    def __init__(self, graph: Graph) -> None:
+        """Initialize a Pathfinding object.
+
+        args:
+            graph (dict[Zone, list[Zone]]): The graph representation of the zones and their connections
+        """
+        self.graph = graph.representation()
         self.visited: list[Zone] = []
         self.not_visited = list(self.graph.keys())
         self.distance: dict[Zone, int] = {name: inf for name in self.not_visited}
         self.previous: dict[Zone, Zone] = {}
         self.path: list[Zone] = []
 
+
     def get_shortest_path(self, end: str | Zone) -> list[Zone]:
-        """Rebuild the shortest path from the start to the given end zone."""
+        """Get the shortest path from the start zone to the end zone
+
+        Args:
+            end (str | Zone): The end zone
+
+        Raises:
+            ValueError: If the end zone is unknown
+
+        Returns:
+            list[Zone]: The shortest path from the start zone to the end zone
+        """
         if isinstance(end, str):
             end = next((zone for zone in self.graph if zone.name == end), None)
             if end is None:
@@ -35,7 +50,18 @@ class Pathfinding:
         self.path = list(reversed(path))
         return self.path
 
-    def resolve(self, start: str | Zone) -> None:
+    def resolve(self, start: str | Zone) -> list[Zone]:
+        """dijkstra algorithm to find the shortest path from the start zone to all other zones
+
+        Args:
+            start (str | Zone): The starting zone
+
+        Raises:
+            ValueError: If the start zone is unknown
+
+        Returns:
+            list[Zone]: The shortest path from the start zone to all other zones
+        """
         if isinstance(start, str):
             start = next((zone for zone in self.graph if zone.name == start), None)
             if start is None:
@@ -49,7 +75,7 @@ class Pathfinding:
         while self.not_visited:
             current = min(
                 self.not_visited,
-                key=lambda name: self.distance[name]
+                key=lambda zone: (self.distance[zone], zone.priority)
             )
 
             if self.distance[current] == inf:
@@ -59,13 +85,9 @@ class Pathfinding:
             self.visited.append(current)
             for neighbor in self.graph.get(current, []):
                 if neighbor in self.not_visited:
-                    coast = 2 if neighbor.type == "restricted" else 1
-                    new_distance = self.distance[current] + coast
+                    cost = 2 if neighbor.type == "restricted" else 1
+                    new_distance = self.distance[current] + cost
                     if new_distance < self.distance[neighbor]:
                         self.distance[neighbor] = new_distance
                         self.previous[neighbor] = current
 
-        print("PREVIOUS", [x.name for x in self.previous])
-        print("DISTANCE", {x.name: dist for x, dist in self.distance.items()})
-        self.get_shortest_path("goal")
-        print("PATH:", [x.name for x in self.path])
