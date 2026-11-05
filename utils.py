@@ -77,33 +77,42 @@ class Graph:
                                               for conn in
                                               parsed_map["connections"]]
 
-    def representation(self) -> dict[str, list[str]]:
+    def representation(self) -> dict[Zone, list[Zone]]:
         """Creating a graph representation based on connection
         and removing all blocked zone
 
         Returns:
-            dict[str, list[str]]: dict of adjacency list
+            dict[Zone, list[Zone]]: dict of adjacency list
                                  representation of the graph
         """
-        adjacency_list: dict[str, list[str]] = {}
+        adjacency_list: dict[Zone, list[Zone]] = {}
+        zone_by_name: dict[str, Zone] = {zone.name: zone for zone in self.zone}
 
         for connection in self.connections:
-            if connection.start not in adjacency_list:
-                adjacency_list[connection.start] = []
-            if connection.end not in adjacency_list:
-                adjacency_list[connection.end] = []
+            start_zone = zone_by_name.get(connection.start)
+            end_zone = zone_by_name.get(connection.end)
+            if start_zone is None or end_zone is None:
+                continue
 
-            adjacency_list[connection.start].append(connection.end)
-            adjacency_list[connection.end].append(connection.start)
+            if start_zone not in adjacency_list:
+                adjacency_list[start_zone] = []
+            if end_zone not in adjacency_list:
+                adjacency_list[end_zone] = []
+
+            adjacency_list[start_zone].append(end_zone)
+            adjacency_list[end_zone].append(start_zone)
 
         for hub in self.zone:
             if hub.type == "blocked":
-                for zone in adjacency_list.values():
-                    if hub.name in zone:
-                        zone.remove(hub.name)
-                del adjacency_list[hub.name]
-        if "start" not in adjacency_list.keys() or "goal" not in adjacency_list.keys():
+                for neighbors in adjacency_list.values():
+                    if hub in neighbors:
+                        neighbors.remove(hub)
+                adjacency_list.pop(hub, None)
+
+        start_zone = zone_by_name.get("start")
+        goal_zone = zone_by_name.get("goal")
+        if start_zone is None or goal_zone is None:
             raise GraphError("Inaccessible mandatory zone")
-        if not (adjacency_list["start"] and adjacency_list["goal"]):
+        if not adjacency_list.get(start_zone) or not adjacency_list.get(goal_zone):
             raise GraphError("Inaccessible mandatory zone")
         return adjacency_list

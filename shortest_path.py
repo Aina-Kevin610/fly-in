@@ -1,20 +1,27 @@
 from math import inf
 
-
-class 
+from utils import Zone
 
 
 class Pathfinding:
     """Class needed to find the shortest path"""
 
-    def __init__(self, graph: dict[str, list[str]]) -> None:
+    def __init__(self, graph: dict[Zone, list[Zone]]) -> None:
         self.graph = graph
-        self.visited: list[str] = []
+        self.visited: list[Zone] = []
         self.not_visited = list(self.graph.keys())
-        self.distance = {name: inf for name in self.not_visited}
-        self.previous: dict[str, str] = {}
+        self.distance: dict[Zone, float] = {name: inf for name in self.not_visited}
+        self.previous: dict[Zone, Zone] = {}
 
-    def resolve(self, start: str) -> None:
+    def resolve(self, start: str | Zone) -> None:
+        if isinstance(start, str):
+            start = next((zone for zone in self.graph if zone.name == start), None)
+            if start is None:
+                raise ValueError(f"Unknown start zone: {start!r}")
+
+        if start not in self.graph:
+            raise ValueError(f"Unknown start zone: {start}")
+
         self.distance[start] = 0
 
         while self.not_visited:
@@ -29,14 +36,9 @@ class Pathfinding:
             self.not_visited.remove(current)
             self.visited.append(current)
 
-            for s in self.graph[current]:
-                if s in self.not_visited:
+            for neighbor in self.graph.get(current, []):
+                if neighbor in self.not_visited:
                     new_distance = self.distance[current] + 1
-                    if new_distance < self.distance[s]:
-                        self.distance[s] = new_distance
-                        self.previous[s] = current
-
-        print(self.visited)
-        print(self.not_visited)
-        print(self.distance)
-        print(self.previous)
+                    if new_distance < self.distance[neighbor]:
+                        self.distance[neighbor] = new_distance
+                        self.previous[neighbor] = current
