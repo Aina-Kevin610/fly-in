@@ -26,6 +26,6 @@ lint:
 
 clean:
 	@echo "$(RED)Cleanning...$(NC)"
-	@m -rf __pycache__ .vscode .mypy_cache > /dev/null 2>&1
+	@rm -rf __pycache__ .vscode .mypy_cache __pycache__ venv > /dev/null 2>&1
 
 .PHONY: install run clean lint

@@ -90,4 +90,3 @@ class Pathfinding:
                     if new_distance < self.distance[neighbor]:
                         self.distance[neighbor] = new_distance
                         self.previous[neighbor] = current
-
