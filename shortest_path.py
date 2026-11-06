@@ -50,6 +50,7 @@ class Pathfinding:
         self.path = list(reversed(path))
         return self.path
 
+
     def resolve(self, start: str | Zone) -> list[Zone]:
         """dijkstra algorithm to find the shortest path from the start zone to all other zones
 
@@ -62,6 +63,7 @@ class Pathfinding:
         Returns:
             list[Zone]: The shortest path from the start zone to all other zones
         """
+        tour = 0
         if isinstance(start, str):
             start = next((zone for zone in self.graph if zone.name == start), None)
             if start is None:
@@ -71,7 +73,8 @@ class Pathfinding:
             raise ValueError(f"Unknown start zone: {start}")
 
         self.distance[start] = 0
-
+        start.status.append(tour)
+        tour += 1
         while self.not_visited:
             current = min(
                 self.not_visited,
@@ -90,3 +93,8 @@ class Pathfinding:
                     if new_distance < self.distance[neighbor]:
                         self.distance[neighbor] = new_distance
                         self.previous[neighbor] = current
+                        neighbor.status.append(tour)
+                else:
+                    neighbor.status.append(tour)
+                    tour += 1
+                print(current.name, current.status)

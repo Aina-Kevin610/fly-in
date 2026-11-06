@@ -43,12 +43,9 @@ class Zone:
         self.y1 = positions[1]
         self.color = metadata["color"]
         self.type = metadata["zone"]
-        if self.type == "priority":
-            self.priority = 0
-        else:
-            self.priority = 1
+        self.priority = 0 if self.type == "priority" else 1
         self.max_drones = metadata["max_drones"]
-        self.state: list[tuple[int, bool]] = (0, True)
+        self.status: list[int] = []
 
 
 class Connection:
