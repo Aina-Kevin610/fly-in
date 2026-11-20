@@ -45,7 +45,7 @@ class Zone:
         self.type = metadata["zone"]
         self.priority = 0 if self.type == "priority" else 1
         self.max_drones = metadata["max_drones"]
-        self.status: list[int] = []
+        self.status: dict[int, int] = {}
 
 
 class Connection:
