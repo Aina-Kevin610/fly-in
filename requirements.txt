@@ -7,4 +7,5 @@ mypy_extensions==1.1.0
 pathspec==1.1.1
 pycodestyle==2.15.0
 pyflakes==4.0.3
+pygame==2.6.1
 typing_extensions==4.16.0
