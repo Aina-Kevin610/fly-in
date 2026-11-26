@@ -1,7 +1,7 @@
 import sys
 from parsing import Parser
 from utils import Graph
-from shortest_path import Pathfinding
+from shortest_path import PathFinding
 from pprint import pprint
 
 
@@ -12,14 +12,19 @@ def main() -> None:
         parser = Parser(file_to_parse)
         parsed_map = parser.parse()
         graph = Graph(parsed_map)
-        p = Pathfinding(graph)
-        for drone_id in range(p.drone_count):
-            p.resolve("start", drone_id)
-            p.get_shortest_path("goal")
-        pprint([p.drone_schedules[drone_id]
-                for drone_id in range(p.drone_count)])
+        # pprint(graph.representation())
+        # print(type({isinstance(str, x.name):[z.name for z in y] for x, y in graph.representation().items()}["start"][0]))
+        # for x in graph.representation():
+        #     print(x.name, end="")
+        #     print([a.name for a in x.values()])
+        # print(p.not_visited)
 
-    except Exception as e:
+        p = PathFinding(graph)
+
+        p.resolve("start")
+        print([x.distance for x in graph.zone])
+
+    except ValueError as e:
         print(f"Error: {e}")
         raise SystemExit(1)
 

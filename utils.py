@@ -1,4 +1,5 @@
 from typing import Any
+from math import inf
 
 
 class GraphError(Exception):
@@ -45,7 +46,9 @@ class Zone:
         self.type = metadata["zone"]
         self.priority = 0 if self.type == "priority" else 1
         self.max_drones = metadata["max_drones"]
-        self.status: dict[int, int] = {}
+        self.present_drones = 0
+        self.distance = inf
+        # self.status: dict[int, int] = {}
 
 
 class Connection:
